@@ -1,3 +1,5 @@
+import os
+
 from datetime import datetime
 from decimal import Decimal
 from urllib.parse import quote_plus
@@ -17,30 +19,83 @@ from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 
-app.secret_key = "medical-center-demo-key"
+app.secret_key = os.getenv(
+    "SECRET_KEY",
+    "medical-center-demo-key"
+)
 
 
 # =========================================================
-# POŁĄCZENIE Z MICROSOFT SQL SERVER
+# POŁĄCZENIE Z BAZĄ DANYCH
 # =========================================================
 
-connection_string = (
-    "DRIVER={ODBC Driver 18 for SQL Server};"
-    r"SERVER=.\SQLEXPRESS;"
-    "DATABASE=medical_center;"
-    "Trusted_Connection=yes;"
-    "TrustServerCertificate=yes;"
-)
+database_url = os.getenv("DATABASE_URL")
 
-connection_url = (
-    "mssql+pyodbc:///?odbc_connect="
-    + quote_plus(connection_string)
-)
+IS_CLOUD_DATABASE = bool(database_url)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = connection_url
+
+if database_url:
+
+    # Niektóre serwisy używają starego prefiksu postgres://
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace(
+            "postgres://",
+            "postgresql://",
+            1
+        )
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
+    # PostgreSQL używany w chmurze nie korzysta ze schematu dbo
+    DB_SCHEMA = None
+
+else:
+
+    # Lokalna baza Microsoft SQL Server
+    connection_string = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        r"SERVER=.\SQLEXPRESS;"
+        "DATABASE=medical_center;"
+        "Trusted_Connection=yes;"
+        "TrustServerCertificate=yes;"
+    )
+
+    connection_url = (
+        "mssql+pyodbc:///?odbc_connect="
+        + quote_plus(connection_string)
+    )
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = connection_url
+
+    DB_SCHEMA = "dbo"
+
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
+
+# =========================================================
+# FUNKCJE POMOCNICZE
+# =========================================================
+
+def table_args():
+    if DB_SCHEMA:
+        return {"schema": DB_SCHEMA}
+
+    return {}
+
+
+def foreign_key(table_name, column_name="Id"):
+
+    if DB_SCHEMA:
+        return (
+            f"{DB_SCHEMA}."
+            f"{table_name}."
+            f"{column_name}"
+        )
+
+    return f"{table_name}.{column_name}"
 
 
 # =========================================================
@@ -50,7 +105,7 @@ db = SQLAlchemy(app)
 class Patient(db.Model):
 
     __tablename__ = "Patients"
-    __table_args__ = {"schema": "dbo"}
+    __table_args__ = table_args()
 
     id = db.Column(
         "Id",
@@ -99,7 +154,7 @@ class Patient(db.Model):
 class Specialization(db.Model):
 
     __tablename__ = "Specializations"
-    __table_args__ = {"schema": "dbo"}
+    __table_args__ = table_args()
 
     id = db.Column(
         "Id",
@@ -137,7 +192,7 @@ class Specialization(db.Model):
 class Doctor(db.Model):
 
     __tablename__ = "Doctors"
-    __table_args__ = {"schema": "dbo"}
+    __table_args__ = table_args()
 
     id = db.Column(
         "Id",
@@ -171,7 +226,9 @@ class Doctor(db.Model):
     specialization_id = db.Column(
         "SpecializationId",
         db.Integer,
-        db.ForeignKey("dbo.Specializations.Id"),
+        db.ForeignKey(
+            foreign_key("Specializations")
+        ),
         nullable=False
     )
 
@@ -200,7 +257,7 @@ class Doctor(db.Model):
 class Service(db.Model):
 
     __tablename__ = "Services"
-    __table_args__ = {"schema": "dbo"}
+    __table_args__ = table_args()
 
     id = db.Column(
         "Id",
@@ -235,7 +292,9 @@ class Service(db.Model):
     specialization_id = db.Column(
         "SpecializationId",
         db.Integer,
-        db.ForeignKey("dbo.Specializations.Id"),
+        db.ForeignKey(
+            foreign_key("Specializations")
+        ),
         nullable=False
     )
 
@@ -264,7 +323,7 @@ class Service(db.Model):
 class Appointment(db.Model):
 
     __tablename__ = "Appointments"
-    __table_args__ = {"schema": "dbo"}
+    __table_args__ = table_args()
 
     id = db.Column(
         "Id",
@@ -275,21 +334,27 @@ class Appointment(db.Model):
     patient_id = db.Column(
         "PatientId",
         db.Integer,
-        db.ForeignKey("dbo.Patients.Id"),
+        db.ForeignKey(
+            foreign_key("Patients")
+        ),
         nullable=False
     )
 
     doctor_id = db.Column(
         "DoctorId",
         db.Integer,
-        db.ForeignKey("dbo.Doctors.Id"),
+        db.ForeignKey(
+            foreign_key("Doctors")
+        ),
         nullable=False
     )
 
     service_id = db.Column(
         "ServiceId",
         db.Integer,
-        db.ForeignKey("dbo.Services.Id"),
+        db.ForeignKey(
+            foreign_key("Services")
+        ),
         nullable=False
     )
 
@@ -331,6 +396,132 @@ class Appointment(db.Model):
         "Service",
         back_populates="appointments"
     )
+
+
+# =========================================================
+# INICJALIZACJA BAZY W CHMURZE
+# =========================================================
+
+def initialize_cloud_database():
+
+    if not IS_CLOUD_DATABASE:
+        return
+
+    with app.app_context():
+
+        db.create_all()
+
+        specialization_data = [
+            (
+                "Kardiologia",
+                "Diagnostyka i leczenie chorób serca."
+            ),
+            (
+                "Dermatologia",
+                "Diagnostyka i leczenie chorób skóry."
+            ),
+            (
+                "Pediatria",
+                "Opieka medyczna nad dziećmi."
+            ),
+            (
+                "Medycyna rodzinna",
+                "Podstawowa opieka zdrowotna."
+            )
+        ]
+
+        for name, description in specialization_data:
+
+            existing = (
+                Specialization.query
+                .filter_by(name=name)
+                .first()
+            )
+
+            if existing is None:
+
+                db.session.add(
+                    Specialization(
+                        name=name,
+                        description=description
+                    )
+                )
+
+        db.session.commit()
+
+        service_data = [
+            (
+                "Konsultacja kardiologiczna",
+                "Konsultacja specjalistyczna.",
+                30,
+                Decimal("250.00"),
+                "Kardiologia"
+            ),
+            (
+                "Konsultacja dermatologiczna",
+                "Konsultacja specjalistyczna.",
+                30,
+                Decimal("220.00"),
+                "Dermatologia"
+            ),
+            (
+                "Konsultacja pediatryczna",
+                "Konsultacja specjalistyczna.",
+                30,
+                Decimal("180.00"),
+                "Pediatria"
+            ),
+            (
+                "Konsultacja lekarza rodzinnego",
+                "Konsultacja podstawowej opieki zdrowotnej.",
+                20,
+                Decimal("150.00"),
+                "Medycyna rodzinna"
+            )
+        ]
+
+        for (
+            name,
+            description,
+            duration,
+            price,
+            specialization_name
+        ) in service_data:
+
+            existing_service = (
+                Service.query
+                .filter_by(name=name)
+                .first()
+            )
+
+            if existing_service is not None:
+                continue
+
+            specialization = (
+                Specialization.query
+                .filter_by(
+                    name=specialization_name
+                )
+                .first()
+            )
+
+            if specialization is not None:
+
+                db.session.add(
+                    Service(
+                        name=name,
+                        description=description,
+                        duration_minutes=duration,
+                        price=price,
+                        specialization_id=specialization.id,
+                        is_active=True
+                    )
+                )
+
+        db.session.commit()
+
+
+initialize_cloud_database()
 
 
 # =========================================================
