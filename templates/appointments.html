@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Wizyty | Centrum Medyczne
+{% endblock %}
+
+
+{% block content %}
+
+
+<section class="page-heading">
+
+    <div>
+
+        <span class="eyebrow">
+            WIZYTY
+        </span>
+
+        <h1>
+            Rejestracja wizyt
+        </h1>
+
+        <p>
+            Tworzenie i zarządzanie wizytami.
+        </p>
+
+    </div>
+
+    <div class="counter-box">
+
+        <span>
+            Wizyty
+        </span>
+
+        <strong>
+            {{ appointments|length }}
+        </strong>
+
+    </div>
+
+</section>
+
+
+
+<section class="two-columns">
+
+
+    <div class="panel">
+
+
+        <div class="panel-title">
+
+            <div>
+
+                <h2>
+                    Nowa wizyta
+                </h2>
+
+                <p>
+                    Wybierz pacjenta, lekarza i usługę.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            class="form-grid"
+        >
+
+
+            <div class="form-group">
+
+                <label>
+                    Pacjent *
+                </label>
+
+                <select name="patient_id" required>
+
+                    <option value="">
+                        Wybierz pacjenta
+                    </option>
+
+                    {% for patient in patients %}
+
+                    <option value="{{ patient.id }}">
+
+                        {{ patient.first_name }}
+                        {{ patient.last_name }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Lekarz *
+                </label>
+
+                <select name="doctor_id" required>
+
+                    <option value="">
+                        Wybierz lekarza
+                    </option>
+
+                    {% for doctor in doctors %}
+
+                    <option value="{{ doctor.id }}">
+
+                        {{ doctor.first_name }}
+                        {{ doctor.last_name }}
+
+                        —
+                        {{ doctor.specialization.name }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    Usługa *
+                </label>
+
+                <select name="service_id" required>
+
+                    <option value="">
+                        Wybierz usługę
+                    </option>
+
+                    {% for service in services %}
+
+                    <option value="{{ service.id }}">
+
+                        {{ service.name }}
+
+                        —
+                        {{ "%.2f"|format(service.price) }} PLN
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Data i godzina *
+                </label>
+
+                <input
+                    type="datetime-local"
+                    name="appointment_datetime"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Status *
+                </label>
+
+                <select name="status" required>
+
+                    <option value="Zaplanowana">
+                        Zaplanowana
+                    </option>
+
+                    <option value="Zakończona">
+                        Zakończona
+                    </option>
+
+                    <option value="Anulowana">
+                        Anulowana
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    Notatka
+                </label>
+
+                <input
+                    type="text"
+                    name="notes"
+                >
+
+            </div>
+
+
+            <div class="full-width">
+
+                <button
+                    type="submit"
+                    class="button-primary"
+                >
+                    + Utwórz wizytę
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+
+    <div class="info-card">
+
+        <span class="eyebrow">
+            HARMONOGRAM
+        </span>
+
+        <h2>
+            Kontrola wizyt
+        </h2>
+
+        <p>
+            System sprawdza specjalizację
+            lekarza oraz konflikt terminu.
+        </p>
+
+        <div class="info-feature">
+            ✓ Pacjent
+        </div>
+
+        <div class="info-feature">
+            ✓ Lekarz
+        </div>
+
+        <div class="info-feature">
+            ✓ Usługa
+        </div>
+
+        <div class="info-feature">
+            ✓ Kontrola terminu
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<section class="panel">
+
+
+    <div class="panel-title">
+
+        <div>
+
+            <span class="eyebrow">
+                HARMONOGRAM
+            </span>
+
+            <h2>
+                Lista wizyt
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+
+        <table>
+
+            <thead>
+
+            <tr>
+
+                <th>ID</th>
+                <th>Termin</th>
+                <th>Pacjent</th>
+                <th>Lekarz</th>
+                <th>Usługa</th>
+                <th>Status</th>
+
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            {% for appointment in appointments %}
+
+            <tr>
+
+                <td>
+                    #{{ appointment.id }}
+                </td>
+
+                <td>
+
+                    <strong>
+
+                        {{ appointment.appointment_datetime.strftime("%d.%m.%Y") }}
+
+                    </strong>
+
+                    <br>
+
+                    {{ appointment.appointment_datetime.strftime("%H:%M") }}
+
+                </td>
+
+                <td>
+
+                    {{ appointment.patient.first_name }}
+                    {{ appointment.patient.last_name }}
+
+                </td>
+
+                <td>
+
+                    {{ appointment.doctor.first_name }}
+                    {{ appointment.doctor.last_name }}
+
+                </td>
+
+                <td>
+                    {{ appointment.service.name }}
+                </td>
+
+                <td>
+
+                    {% if appointment.status == "Zaplanowana" %}
+
+                    <span class="status-active">
+
+                        <span></span>
+
+                        Zaplanowana
+
+                    </span>
+
+                    {% elif appointment.status == "Zakończona" %}
+
+                    <span class="status-completed">
+                        Zakończona
+                    </span>
+
+                    {% else %}
+
+                    <span class="status-cancelled">
+                        Anulowana
+                    </span>
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+
+                <td colspan="6" class="empty-cell">
+                    Brak wizyt.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+        Centrum Medyczne
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="topbar">
+
+
+    <a
+        href="{{ url_for('home') }}"
+        class="brand"
+    >
+
+        <div class="brand-icon">
+            +
+        </div>
+
+        <div>
+
+            <strong>
+                Centrum Medyczne
+            </strong>
+
+            <span>
+                System zarządzania
+            </span>
+
+        </div>
+
+    </a>
+
+
+    <nav class="top-menu">
+
+
+        <a
+            href="{{ url_for('home') }}"
+            class="{% if request.endpoint == 'home' %}active{% endif %}"
+        >
+            Panel główny
+        </a>
+
+
+        <a
+            href="{{ url_for('patients') }}"
+            class="{% if request.endpoint == 'patients' %}active{% endif %}"
+        >
+            Pacjenci
+        </a>
+
+
+        <a
+            href="{{ url_for('doctors') }}"
+            class="{% if request.endpoint == 'doctors' %}active{% endif %}"
+        >
+            Lekarze
+        </a>
+
+
+        <a
+            href="{{ url_for('appointments') }}"
+            class="{% if request.endpoint == 'appointments' %}active{% endif %}"
+        >
+            Wizyty
+        </a>
+
+
+        <a
+            href="{{ url_for('services') }}"
+            class="{% if request.endpoint == 'services' %}active{% endif %}"
+        >
+            Usługi
+        </a>
+
+
+        <a class="disabled-link" href="#">
+            Płatności
+        </a>
+
+
+    </nav>
+
+
+    <div class="user-box">
+
+        <div class="user-avatar">
+            A
+        </div>
+
+        <div>
+
+            <strong>
+                Administrator
+            </strong>
+
+            <span>
+                System aktywny
+            </span>
+
+        </div>
+
+    </div>
+
+
+</header>
+
+
+<main class="page-content">
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="alert alert-{{ category }}">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    {% block content %}
+    {% endblock %}
+
+
+</main>
+
+
+</body>
+
+</html>

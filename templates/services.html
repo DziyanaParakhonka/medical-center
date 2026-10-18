@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Usługi | Centrum Medyczne
+{% endblock %}
+
+
+{% block content %}
+
+
+<section class="page-heading">
+
+    <div>
+
+        <span class="eyebrow">
+            USŁUGI
+        </span>
+
+        <h1>
+            Katalog usług
+        </h1>
+
+        <p>
+            Cennik i zakres usług medycznych.
+        </p>
+
+    </div>
+
+    <div class="counter-box">
+
+        <span>
+            Usługi
+        </span>
+
+        <strong>
+            {{ services|length }}
+        </strong>
+
+    </div>
+
+</section>
+
+
+
+<section class="two-columns">
+
+
+    <div class="panel">
+
+
+        <div class="panel-title">
+
+            <div>
+
+                <h2>
+                    Nowa usługa
+                </h2>
+
+                <p>
+                    Dodaj usługę do katalogu.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            class="form-grid"
+        >
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    Nazwa *
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Czas trwania *
+                </label>
+
+                <input
+                    type="number"
+                    min="1"
+                    name="duration_minutes"
+                    placeholder="30"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Cena PLN *
+                </label>
+
+                <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    name="price"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    Specjalizacja *
+                </label>
+
+                <select
+                    name="specialization_id"
+                    required
+                >
+
+                    <option value="">
+                        Wybierz specjalizację
+                    </option>
+
+                    {% for specialization in specializations %}
+
+                    <option value="{{ specialization.id }}">
+
+                        {{ specialization.name }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    Opis
+                </label>
+
+                <input
+                    type="text"
+                    name="description"
+                >
+
+            </div>
+
+
+            <div class="full-width">
+
+                <button
+                    type="submit"
+                    class="button-primary"
+                >
+                    + Dodaj usługę
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+
+    <div class="info-card">
+
+        <span class="eyebrow">
+            KATALOG
+        </span>
+
+        <h2>
+            Usługi medyczne
+        </h2>
+
+        <p>
+            Usługi są powiązane
+            ze specjalizacjami lekarzy.
+        </p>
+
+        <div class="info-feature">
+            ✓ Cena
+        </div>
+
+        <div class="info-feature">
+            ✓ Czas trwania
+        </div>
+
+        <div class="info-feature">
+            ✓ Specjalizacja
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<section class="panel">
+
+
+    <div class="panel-title">
+
+        <div>
+
+            <span class="eyebrow">
+                CENNIK
+            </span>
+
+            <h2>
+                Lista usług
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+
+        <table>
+
+            <thead>
+
+            <tr>
+
+                <th>ID</th>
+                <th>Usługa</th>
+                <th>Specjalizacja</th>
+                <th>Czas</th>
+                <th>Cena</th>
+                <th>Status</th>
+
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            {% for service in services %}
+
+            <tr>
+
+                <td>
+                    #{{ service.id }}
+                </td>
+
+                <td>
+
+                    <strong>
+                        {{ service.name }}
+                    </strong>
+
+                    <br>
+
+                    <small>
+                        {{ service.description or "" }}
+                    </small>
+
+                </td>
+
+                <td>
+
+                    <span class="badge">
+
+                        {{ service.specialization.name }}
+
+                    </span>
+
+                </td>
+
+                <td>
+                    {{ service.duration_minutes }} min
+                </td>
+
+                <td>
+
+                    <strong>
+                        {{ "%.2f"|format(service.price) }} PLN
+                    </strong>
+
+                </td>
+
+                <td>
+
+                    {% if service.is_active %}
+
+                    <span class="status-active">
+
+                        <span></span>
+
+                        Aktywna
+
+                    </span>
+
+                    {% else %}
+
+                    Nieaktywna
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+
+                <td colspan="6" class="empty-cell">
+                    Brak usług.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}

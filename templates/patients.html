@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Pacjenci | Centrum Medyczne
+{% endblock %}
+
+
+{% block content %}
+
+
+<section class="page-heading">
+
+    <div>
+
+        <span class="eyebrow">
+            PACJENCI
+        </span>
+
+        <h1>
+            Baza pacjentów
+        </h1>
+
+        <p>
+            Zarządzanie danymi pacjentów.
+        </p>
+
+    </div>
+
+    <div class="counter-box">
+
+        <span>
+            Łącznie
+        </span>
+
+        <strong>
+            {{ patients|length }}
+        </strong>
+
+    </div>
+
+</section>
+
+
+
+<section class="two-columns">
+
+
+    <div class="panel">
+
+
+        <div class="panel-title">
+
+            <div>
+
+                <h2>
+                    Nowy pacjent
+                </h2>
+
+                <p>
+                    Wprowadź podstawowe dane.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            class="form-grid"
+        >
+
+
+            <div class="form-group">
+
+                <label>
+                    Imię *
+                </label>
+
+                <input
+                    type="text"
+                    name="first_name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Nazwisko *
+                </label>
+
+                <input
+                    type="text"
+                    name="last_name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Data urodzenia
+                </label>
+
+                <input
+                    type="date"
+                    name="birth_date"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Telefon
+                </label>
+
+                <input
+                    type="text"
+                    name="phone"
+                >
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                >
+
+            </div>
+
+
+            <div class="full-width">
+
+                <button
+                    type="submit"
+                    class="button-primary"
+                >
+                    + Dodaj pacjenta
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+
+    <div class="info-card">
+
+        <span class="eyebrow">
+            INFORMACJA
+        </span>
+
+        <h2>
+            Dane pacjentów
+        </h2>
+
+        <p>
+            Formularz zapisuje dane bezpośrednio
+            w bazie Microsoft SQL Server.
+        </p>
+
+        <div class="info-feature">
+            ✓ Automatyczny identyfikator
+        </div>
+
+        <div class="info-feature">
+            ✓ Dane kontaktowe
+        </div>
+
+        <div class="info-feature">
+            ✓ Integracja z wizytami
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<section class="panel">
+
+
+    <div class="panel-title">
+
+        <div>
+
+            <span class="eyebrow">
+                REJESTR
+            </span>
+
+            <h2>
+                Lista pacjentów
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+
+        <table>
+
+            <thead>
+
+            <tr>
+
+                <th>ID</th>
+                <th>Pacjent</th>
+                <th>Data urodzenia</th>
+                <th>Telefon</th>
+                <th>E-mail</th>
+
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            {% for patient in patients %}
+
+            <tr>
+
+                <td>
+                    #{{ patient.id }}
+                </td>
+
+                <td>
+
+                    <div class="person">
+
+                        <div class="avatar">
+
+                            {{ patient.first_name[0] }}
+                            {{ patient.last_name[0] }}
+
+                        </div>
+
+                        <strong>
+
+                            {{ patient.first_name }}
+                            {{ patient.last_name }}
+
+                        </strong>
+
+                    </div>
+
+                </td>
+
+                <td>
+                    {{ patient.birth_date or "-" }}
+                </td>
+
+                <td>
+                    {{ patient.phone or "-" }}
+                </td>
+
+                <td>
+                    {{ patient.email or "-" }}
+                </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+
+                <td colspan="5" class="empty-cell">
+                    Brak pacjentów.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}

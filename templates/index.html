@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Panel główny | Centrum Medyczne
+{% endblock %}
+
+
+{% block content %}
+
+
+<section class="hero">
+
+
+    <div>
+
+        <span class="eyebrow">
+            CENTRUM MEDYCZNE
+        </span>
+
+        <h1>
+            Zarządzanie centrum
+            <span>medycznym</span>
+        </h1>
+
+        <p>
+            Pacjenci, lekarze, wizyty i usługi
+            w jednym systemie.
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <a
+                class="button-primary"
+                href="{{ url_for('appointments') }}"
+            >
+                + Nowa wizyta
+            </a>
+
+            <a
+                class="button-secondary"
+                href="{{ url_for('patients') }}"
+            >
+                Dodaj pacjenta
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-card">
+
+        <div class="medical-cross">
+            +
+        </div>
+
+        <small>
+            SYSTEM ONLINE
+        </small>
+
+        <h2>
+            Zdrowie w dobrych rękach
+        </h2>
+
+        <p>
+            Microsoft SQL Server
+        </p>
+
+        <div class="system-online">
+            <span></span>
+            Połączenie aktywne
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<section class="stats-grid">
+
+
+    <a
+        href="{{ url_for('patients') }}"
+        class="stat-card"
+    >
+
+        <div class="stat-icon">
+            P
+        </div>
+
+        <span>
+            Pacjenci
+        </span>
+
+        <strong>
+            {{ patients_count }}
+        </strong>
+
+        <small>
+            Zarejestrowani pacjenci
+        </small>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('doctors') }}"
+        class="stat-card"
+    >
+
+        <div class="stat-icon">
+            L
+        </div>
+
+        <span>
+            Lekarze
+        </span>
+
+        <strong>
+            {{ doctors_count }}
+        </strong>
+
+        <small>
+            Aktywny personel
+        </small>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('appointments') }}"
+        class="stat-card"
+    >
+
+        <div class="stat-icon">
+            W
+        </div>
+
+        <span>
+            Wizyty
+        </span>
+
+        <strong>
+            {{ appointments_count }}
+        </strong>
+
+        <small>
+            Wszystkie wizyty
+        </small>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('services') }}"
+        class="stat-card"
+    >
+
+        <div class="stat-icon">
+            U
+        </div>
+
+        <span>
+            Usługi
+        </span>
+
+        <strong>
+            {{ services_count }}
+        </strong>
+
+        <small>
+            Aktywne usługi
+        </small>
+
+    </a>
+
+
+</section>
+
+
+
+<section class="dashboard-grid">
+
+
+    <div class="panel">
+
+
+        <div class="panel-title">
+
+            <div>
+
+                <span class="eyebrow">
+                    HARMONOGRAM
+                </span>
+
+                <h2>
+                    Najbliższe wizyty
+                </h2>
+
+            </div>
+
+            <a
+                href="{{ url_for('appointments') }}"
+                class="small-link"
+            >
+                Wszystkie wizyty →
+            </a>
+
+        </div>
+
+
+        {% if upcoming_appointments %}
+
+
+        <div class="appointment-list">
+
+
+            {% for appointment in upcoming_appointments %}
+
+
+            <div class="appointment-row">
+
+
+                <div class="date-box">
+
+                    <strong>
+                        {{ appointment.appointment_datetime.strftime("%d") }}
+                    </strong>
+
+                    <span>
+                        {{ appointment.appointment_datetime.strftime("%m.%Y") }}
+                    </span>
+
+                </div>
+
+
+                <div class="appointment-info">
+
+                    <strong>
+                        {{ appointment.patient.first_name }}
+                        {{ appointment.patient.last_name }}
+                    </strong>
+
+                    <span>
+
+                        {{ appointment.appointment_datetime.strftime("%H:%M") }}
+
+                        ·
+
+                        {{ appointment.service.name }}
+
+                    </span>
+
+                </div>
+
+
+                <div class="appointment-doctor">
+
+                    {{ appointment.doctor.first_name }}
+                    {{ appointment.doctor.last_name }}
+
+                </div>
+
+
+                <span class="status-active">
+
+                    <span></span>
+
+                    Zaplanowana
+
+                </span>
+
+
+            </div>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                +
+            </div>
+
+            <h3>
+                Brak zaplanowanych wizyt
+            </h3>
+
+            <p>
+                Utwórz pierwszą wizytę w systemie.
+            </p>
+
+            <a
+                href="{{ url_for('appointments') }}"
+                class="button-primary"
+            >
+                + Nowa wizyta
+            </a>
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+
+    <div class="panel">
+
+
+        <div class="panel-title">
+
+            <div>
+
+                <span class="eyebrow">
+                    SZYBKI DOSTĘP
+                </span>
+
+                <h2>
+                    Najczęstsze działania
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="quick-links">
+
+
+            <a href="{{ url_for('patients') }}">
+
+                <span class="quick-icon">
+                    P
+                </span>
+
+                <div>
+
+                    <strong>
+                        Pacjenci
+                    </strong>
+
+                    <small>
+                        Dodaj i przeglądaj
+                    </small>
+
+                </div>
+
+                <b>→</b>
+
+            </a>
+
+
+            <a href="{{ url_for('doctors') }}">
+
+                <span class="quick-icon">
+                    L
+                </span>
+
+                <div>
+
+                    <strong>
+                        Lekarze
+                    </strong>
+
+                    <small>
+                        Zarządzaj personelem
+                    </small>
+
+                </div>
+
+                <b>→</b>
+
+            </a>
+
+
+            <a href="{{ url_for('services') }}">
+
+                <span class="quick-icon">
+                    U
+                </span>
+
+                <div>
+
+                    <strong>
+                        Usługi
+                    </strong>
+
+                    <small>
+                        Cennik i specjalizacje
+                    </small>
+
+                </div>
+
+                <b>→</b>
+
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}

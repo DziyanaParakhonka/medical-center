@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Lekarze | Centrum Medyczne
+{% endblock %}
+
+
+{% block content %}
+
+
+<section class="page-heading">
+
+    <div>
+
+        <span class="eyebrow">
+            LEKARZE
+        </span>
+
+        <h1>
+            Personel medyczny
+        </h1>
+
+        <p>
+            Zarządzanie lekarzami i specjalizacjami.
+        </p>
+
+    </div>
+
+    <div class="counter-box">
+
+        <span>
+            Lekarze
+        </span>
+
+        <strong>
+            {{ doctors|length }}
+        </strong>
+
+    </div>
+
+</section>
+
+
+
+<section class="two-columns">
+
+
+    <div class="panel">
+
+
+        <div class="panel-title">
+
+            <div>
+
+                <h2>
+                    Nowy lekarz
+                </h2>
+
+                <p>
+                    Dodaj członka personelu.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            class="form-grid"
+        >
+
+
+            <div class="form-group">
+
+                <label>
+                    Imię *
+                </label>
+
+                <input
+                    type="text"
+                    name="first_name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Nazwisko *
+                </label>
+
+                <input
+                    type="text"
+                    name="last_name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Telefon
+                </label>
+
+                <input
+                    type="text"
+                    name="phone"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                >
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    Specjalizacja *
+                </label>
+
+                <select
+                    name="specialization_id"
+                    required
+                >
+
+                    <option value="">
+                        Wybierz specjalizację
+                    </option>
+
+                    {% for specialization in specializations %}
+
+                    <option value="{{ specialization.id }}">
+
+                        {{ specialization.name }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="full-width">
+
+                <button
+                    type="submit"
+                    class="button-primary"
+                >
+                    + Dodaj lekarza
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+
+    <div class="info-card">
+
+        <span class="eyebrow">
+            SPECJALIZACJE
+        </span>
+
+        <h2>
+            Dostępne specjalizacje
+        </h2>
+
+        {% for specialization in specializations %}
+
+        <div class="info-feature">
+            ✓ {{ specialization.name }}
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+</section>
+
+
+
+<section class="panel">
+
+
+    <div class="panel-title">
+
+        <div>
+
+            <span class="eyebrow">
+                PERSONEL
+            </span>
+
+            <h2>
+                Lista lekarzy
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+
+        <table>
+
+            <thead>
+
+            <tr>
+
+                <th>ID</th>
+                <th>Lekarz</th>
+                <th>Specjalizacja</th>
+                <th>Telefon</th>
+                <th>E-mail</th>
+                <th>Status</th>
+
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            {% for doctor in doctors %}
+
+            <tr>
+
+                <td>
+                    #{{ doctor.id }}
+                </td>
+
+                <td>
+
+                    <div class="person">
+
+                        <div class="avatar">
+
+                            {{ doctor.first_name[0] }}
+                            {{ doctor.last_name[0] }}
+
+                        </div>
+
+                        <strong>
+
+                            {{ doctor.first_name }}
+                            {{ doctor.last_name }}
+
+                        </strong>
+
+                    </div>
+
+                </td>
+
+                <td>
+
+                    <span class="badge">
+
+                        {{ doctor.specialization.name }}
+
+                    </span>
+
+                </td>
+
+                <td>
+                    {{ doctor.phone or "-" }}
+                </td>
+
+                <td>
+                    {{ doctor.email or "-" }}
+                </td>
+
+                <td>
+
+                    {% if doctor.is_active %}
+
+                    <span class="status-active">
+
+                        <span></span>
+
+                        Aktywny
+
+                    </span>
+
+                    {% else %}
+
+                    Nieaktywny
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+
+                <td colspan="6" class="empty-cell">
+                    Brak lekarzy.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}
